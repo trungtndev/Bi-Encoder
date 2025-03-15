@@ -1,0 +1,8 @@
+# nvcr.io/nvidia/tritonserver:24.07-py3-sdk
+
+docker pull nvcr.io/nvidia/tritonserver:23.04-py3-sdk
+
+
+curl -X 'POST' 'http://127.0.0.1:7999/viencoder' \
+     -H 'Content-Type: application/json' \
+     -d '{"texts": ["Đây là một đoạn văn mẫu gửi đến server FastAPI.", "Here is another text to process."]}'

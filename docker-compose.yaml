@@ -1,0 +1,34 @@
+services:
+  viencoder:
+    image: heronq02/viencoder:cuda11.8-final
+    environment:
+      - MODEL_NAME=ensemble_model
+      - MODEL_VERSION=1
+      - TRITON_URL=triton:8001
+      - PROTOCOL=grpc
+    ports:
+      - "7999:7999"
+    depends_on:
+      triton:
+        condition: service_healthy
+    links:
+      - triton:triton
+    command: fastapi run api/main.py --port 7999 --root-path /textemb
+    
+  triton:
+    build:
+      context: .
+      dockerfile: Dockerfile.triton
+    shm_size: '4gb'
+    volumes:
+      - ${PWD}/models:/models
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+      - "8002:8002"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/v2/health/ready"]
+      interval: 30s
+      timeout: 5s
+      retries: 2
+    command: tritonserver --model-repository=/models
